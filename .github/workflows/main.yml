@@ -42,8 +42,9 @@ jobs:
               exit 1
           }
           echo "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
-          Write-Host "Loaded PROJECT_NAME: $($config.project_name)"
-
+          $env:PROJECT_NAME = $config.project_name
+          Write-Host "Loaded PROJECT_NAME: $($env:PROJECT_NAME)"
+      
       - name: Debug Environment Variables
         run: |
           echo "PROJECT_NAME: $env:PROJECT_NAME"
@@ -54,7 +55,7 @@ jobs:
         uses: joncloud/makensis-action@v4
         with:
           script-file: ./installer/installer.nsi
-          arguments: "/V3 /DNAME=$env:PROJECT_NAME"
+          arguments: "/V3 /DNAME=${{env.PROJECT_NAME}}"
 
       # Create a new GitHub Release and upload installer
       - name: Create Release
