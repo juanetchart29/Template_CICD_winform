@@ -14,91 +14,51 @@ permissions:
 jobs:
   build_ubuntu_latest:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Set the value
-      id: step_one
-      shell: bash
-      run: |
-        # bash
-        echo "action_state=yellow" >> $GITHUB_ENV
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Use the value
-      id: step_two
-      shell: bash
-      run: |
-        # bash
-        echo "Action State is: '${{ env.action_state }}'" # Output works
+      - name: Extract Project Name from JSON
+        run: |
+          PROJECT_NAME=$(jq -r '.project_name' .github/workflows/data.json)
+          echo "PROJECT_NAME=$PROJECT_NAME"
+          echo $PROJECT_NAME > project_name.txt
 
-
+      - name: Upload Project Name Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: project_name
+          path: project_name.txt
 
   build:
     runs-on: windows-latest
     permissions: write-all    
     steps:
-      # Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Download Project Name Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: project_name
 
-      # # Detect and set up the appropriate .NET SDK version
-      # - name: Setup .NET SDK
-      #   uses: actions/setup-dotnet@v3
-      #   with:
-      #     dotnet-version: '*'
-
-      # # Install dependencies
-      # - name: Install dependencies
-      #   run: dotnet restore
-
-      # # Build the solution
-      # - name: Build solution
-      #   run: dotnet build --configuration Release
-
-
-      - name: Load Project Configuration
+      - name: Set Environment Variable from Artifact
         shell: pwsh
         run: |
-          Write-Host "GITHUB_ENV=$GITHUB_ENV"
-
-          $config = Get-Content .github\workflows\data.json | ConvertFrom-Json
-          if (-not $config.project_name) {
-            Write-Host "ERROR: project_name is missing in data.json"
-            exit 1
-            }
-            
-          Write-Host "el config tiene esto= $($config.project_name)"
-          "NAME=$($config.project_name)" | Out-File -FilePath $GITHUB_ENV -Append -Encoding utf8
-          echo "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
+          $PROJECT_NAME = Get-Content project_name.txt
+          Write-Host "Setting PROJECT_NAME as $PROJECT_NAME"
+          echo "PROJECT_NAME=$PROJECT_NAME" >> $GITHUB_ENV
 
       - name: Debug Environment Variables
         shell: pwsh
         run: |
-          echo "NAME: ${{ env.NAME }}"
           echo "PROJECT_NAME: ${{ env.PROJECT_NAME }}"
-  
-      # Run NSIS script to create installer
-      # - name: makensis
-      #   uses: joncloud/makensis-action@v4
-      #   with:
-      #     script-file: ./installer/installer.nsi
-      #     arguments: "/V3 /DNAME=${{ steps.debug_environment.outputs.PROJECT_NAME }}"
 
-      # Create a new GitHub Release and upload installer
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ github.run_number }}
-          release_name: "Release ${{ github.run_number }}"
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Load Project Configuration
+        shell: pwsh
+        run: |
+          Write-Host "Using PROJECT_NAME=$env:PROJECT_NAME"
 
-      - name: Upload Installer
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/your_installer.exe
-          asset_name: your_installer.exe
-          asset_content_type: application/octet-stream
+      # Example steps to use PROJECT_NAME
+      # Add your build or deployment logic here
+      - name: Dummy Step to Use Project Name
+        shell: pwsh
+        run: |
+          Write-Host "Simulating build process for project $env:PROJECT_NAME"
