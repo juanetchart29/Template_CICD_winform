@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - deployment
+      
+permissions:
+  contents: write
+
 
 jobs:
   build:
@@ -68,16 +72,7 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
 
 
-    #   - name: Create release
-    #     uses: actions/create-release@v1
-    #     id: create_release
-    #     with:
-    #       draft: false
-    #       prerelease: false
-    #       release_name: "test ${{env.MONITOR_VERSION}}"
-    #       tag_name: "${{env.MONITOR_VERSION}}"
-    #     env:
-    #       GITHUB_TOKEN: ${{ github.token }}
+
 
     - name: Upload Installer
       uses: actions/upload-release-asset@v1
