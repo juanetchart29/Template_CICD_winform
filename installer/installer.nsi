@@ -5,10 +5,8 @@ InstallDir "$PROGRAMFILES\${NAME}"
 RequestExecutionLevel admin ; Requiere permisos de administrador
 
 ; Archivo de licencia
-LicenseData "license.txt"
 
 ; Pantallas del instalador
-Page license
 Page components
 Page directory
 Page instfiles

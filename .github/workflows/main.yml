@@ -52,7 +52,7 @@ jobs:
       uses: joncloud/makensis-action@v4
       with:
         script-file: ./installer/installer.nsi
-        arguments: "/DNAME=${{env.PROJECT_NAME}}"
+        arguments: "/V3 /DNAME=${{env.PROJECT_NAME}}"
 
 
     # Create a new GitHub Release and upload installer
