@@ -16,9 +16,9 @@ jobs:
     runs-on: windows-latest
     permissions: write-all    
     steps:
-      # # Checkout the code
-      # - name: Checkout code
-      #   uses: actions/checkout@v3
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       # # Detect and set up the appropriate .NET SDK version
       # - name: Setup .NET SDK
@@ -53,14 +53,15 @@ jobs:
       - name: Debug Environment Variables
         shell: pwsh
         run: |
+          echo "NAME: ${{ env.NAME }}"
           echo "PROJECT_NAME: ${{ env.PROJECT_NAME }}"
   
       # Run NSIS script to create installer
-      - name: makensis
-        uses: joncloud/makensis-action@v4
-        with:
-          script-file: ./installer/installer.nsi
-          arguments: "/V3 /DNAME=${{ steps.debug_environment.outputs.PROJECT_NAME }}"
+      # - name: makensis
+      #   uses: joncloud/makensis-action@v4
+      #   with:
+      #     script-file: ./installer/installer.nsi
+      #     arguments: "/V3 /DNAME=${{ steps.debug_environment.outputs.PROJECT_NAME }}"
 
       # Create a new GitHub Release and upload installer
       - name: Create Release
