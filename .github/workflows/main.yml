@@ -1,10 +1,11 @@
 name: Build and Release WinForms Installer
 
-on:
+on:  
   workflow_dispatch:
   push:
-    branches:
-      - deployment
+    branches: deployment  
+  pull_request:
+    branches: deployment
 
 permissions:
   id-token: write
@@ -41,22 +42,20 @@ jobs:
               Write-Host "ERROR: project_name is missing in data.json"
               exit 1
           }
-          $NAME = $config.project_name
-          echo "PROJECT_NAME=$NAME" >> $GITHUB_ENV
-          $env:PROJECT_NAME = $config.project_name
-          Write-Host "Loaded PROJECT_NAME: $($env:PROJECT_NAME)"
-      
-      - name: Debug Environment Variables
-        run: |
-          echo "PROJECT_NAME: $($env:PROJECT_NAME)"
-        shell: pwsh 
+          echo "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
+          #echo "PROJECT_NAME=22" >> $GITHUB_ENV
 
+      - name: Debug Environment Variables
+        shell: pwsh
+        run: |
+          echo "PROJECT_NAME: ${{ env.PROJECT_NAME }}"
+  
       # Run NSIS script to create installer
       - name: makensis
         uses: joncloud/makensis-action@v4
         with:
           script-file: ./installer/installer.nsi
-          arguments: "/V3 /DNAME=$($env:PROJECT_NAME)"
+          arguments: "/V3 /DNAME=${{ steps.debug_environment.outputs.PROJECT_NAME }}"
 
       # Create a new GitHub Release and upload installer
       - name: Create Release
