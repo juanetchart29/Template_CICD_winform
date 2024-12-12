@@ -41,7 +41,7 @@ jobs:
     - name: Create Installer
       run: |
         mkdir output
-        "C:\Program Files (x86)\NSIS\makensis.exe" /DNAME=$env:PROJECT_NAME /DOUTPUT_DIR=output /DSOURCE_DIR=bin\Release .\installer\installer.nsi
+        "C:\Program Files (x86)\NSIS\makensis.exe" /DNAME="$env:PROJECT_NAME" /DOUTPUT_DIR=output /DSOURCE_DIR=bin\Release .\installer\installer.nsi
 
     # Create a new GitHub Release and upload installer
     - name: Create Release
