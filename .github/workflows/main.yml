@@ -12,6 +12,26 @@ permissions:
   contents: read
 
 jobs:
+  build_ubuntu_latest:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set the value
+      id: step_one
+      shell: bash
+      run: |
+        # bash
+        echo "action_state=yellow" >> $GITHUB_ENV
+
+    - name: Use the value
+      id: step_two
+      shell: bash
+      run: |
+        # bash
+        echo "Action State is: '${{ env.action_state }}'" # Output works
+
+
+
   build:
     runs-on: windows-latest
     permissions: write-all    
