@@ -1,82 +1,77 @@
 name: Build and Release WinForms Installer
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - deployment
 
 permissions:
-  contents: write
-
+  id-token: write
+  contents: read
 
 jobs:
   build:
     runs-on: windows-latest
-
+    permissions: write-all    
     steps:
-    # Checkout the code
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # Detect and set up the appropriate .NET SDK version
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '*'
+      # Detect and set up the appropriate .NET SDK version
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '*'
 
-    # Install dependencies
-    - name: Install dependencies
-      run: dotnet restore
+      # Install dependencies
+      - name: Install dependencies
+        run: dotnet restore
 
-    # Build the solution
-    - name: Build solution
-      run: dotnet build --configuration Release
+      # Build the solution
+      - name: Build solution
+        run: dotnet build --configuration Release
 
+      - name: Load Project Configuration
+        shell: pwsh
+        run: |
+          $config = Get-Content .github\workflows\data.json | ConvertFrom-Json
+          if (-not $config.project_name) {
+              Write-Host "ERROR: project_name is missing in data.json"
+              exit 1
+          }
+          echo "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
+          Write-Host "Loaded PROJECT_NAME: $($config.project_name)"
 
-    - name: Load Project Configuration
-      id: load_config
-      shell: powershell
-      run: |
-        $config = Get-Content .github\workflows\data.json | ConvertFrom-Json
-        echo "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
-        Write-Host $env:PROJECT_NAME
+      - name: Debug Environment Variables
+        run: |
+          echo "PROJECT_NAME: $env:PROJECT_NAME"
+        shell: pwsh
 
-    # Run NSIS script to create installer
-    # - name: Create Installer
-    #   run: |
-    #     mkdir output
-    #     Write-Host "${env:PROJECT_NAME}"
-        
-    #     "C:\Program Files (x86)\NSIS\makensis.exe" /DNAME=${env:PROJECT_NAME} /DOUTPUT_DIR=output /DSOURCE_DIR=bin\Release 
+      # Run NSIS script to create installer
+      - name: makensis
+        uses: joncloud/makensis-action@v4
+        with:
+          script-file: ./installer/installer.nsi
+          arguments: "/V3 /DNAME=$env:PROJECT_NAME"
 
+      # Create a new GitHub Release and upload installer
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.run_number }}
+          release_name: "Release ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-
-    - name: makensis 
-      uses: joncloud/makensis-action@v4
-      with:
-        script-file: ./installer/installer.nsi
-        arguments: "/V3 /DNAME=${{env.PROJECT_NAME}}"
-
-
-    # Create a new GitHub Release and upload installer
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      with:
-        tag_name: ${{ github.run_number }}
-        release_name: "Release ${{ github.run_number }}"
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-
-
-
-
-    - name: Upload Installer
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./output/your_installer.exe
-        asset_name: your_installer.exe
-        asset_content_type: application/octet-stream
+      - name: Upload Installer
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./output/your_installer.exe
+          asset_name: your_installer.exe
+          asset_content_type: application/octet-stream
