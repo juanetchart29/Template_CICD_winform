@@ -39,12 +39,12 @@ jobs:
 
 
     # Run NSIS script to create installer
-    - name: Create Installer
-      run: |
-        mkdir output
-        Write-Host "${env:PROJECT_NAME}"
+    # - name: Create Installer
+    #   run: |
+    #     mkdir output
+    #     Write-Host "${env:PROJECT_NAME}"
         
-        "C:\Program Files (x86)\NSIS\makensis.exe" /DNAME=${env:PROJECT_NAME} /DOUTPUT_DIR=output /DSOURCE_DIR=bin\Release 
+    #     "C:\Program Files (x86)\NSIS\makensis.exe" /DNAME=${env:PROJECT_NAME} /DOUTPUT_DIR=output /DSOURCE_DIR=bin\Release 
 
 
 
