@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - deployment
-      
+
 permissions:
   contents: write
 
@@ -38,9 +38,8 @@ jobs:
       shell: powershell
       run: |
         $config = Get-Content .github\workflows\data.json | ConvertFrom-Json
-        Write-Host "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
-        Write-Host "OUTPUT_NAME=$($config.output_name)" >> $GITHUB_E
-
+        echo "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
+        Write-Host $env:PROJECT_NAME
 
     # Run NSIS script to create installer
     # - name: Create Installer
