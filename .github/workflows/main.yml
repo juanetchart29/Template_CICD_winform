@@ -16,34 +16,39 @@ jobs:
     runs-on: windows-latest
     permissions: write-all    
     steps:
-      # Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # # Checkout the code
+      # - name: Checkout code
+      #   uses: actions/checkout@v3
 
-      # Detect and set up the appropriate .NET SDK version
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '*'
+      # # Detect and set up the appropriate .NET SDK version
+      # - name: Setup .NET SDK
+      #   uses: actions/setup-dotnet@v3
+      #   with:
+      #     dotnet-version: '*'
 
-      # Install dependencies
-      - name: Install dependencies
-        run: dotnet restore
+      # # Install dependencies
+      # - name: Install dependencies
+      #   run: dotnet restore
 
-      # Build the solution
-      - name: Build solution
-        run: dotnet build --configuration Release
+      # # Build the solution
+      # - name: Build solution
+      #   run: dotnet build --configuration Release
+
 
       - name: Load Project Configuration
         shell: pwsh
         run: |
+          Write-Host "GITHUB_ENV=$GITHUB_ENV"
+
           $config = Get-Content .github\workflows\data.json | ConvertFrom-Json
           if (-not $config.project_name) {
-              Write-Host "ERROR: project_name is missing in data.json"
-              exit 1
-          }
+            Write-Host "ERROR: project_name is missing in data.json"
+            exit 1
+            }
+            
+          Write-Host "el config tiene esto= $($config.project_name)"
+          "NAME=$($config.project_name)" | Out-File -FilePath $GITHUB_ENV -Append -Encoding utf8
           echo "PROJECT_NAME=$($config.project_name)" >> $GITHUB_ENV
-          #echo "PROJECT_NAME=22" >> $GITHUB_ENV
 
       - name: Debug Environment Variables
         shell: pwsh
