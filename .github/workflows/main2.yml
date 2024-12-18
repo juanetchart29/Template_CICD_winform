@@ -2,10 +2,10 @@ name: Test Envs
 
 on:  
   workflow_dispatch:
-  push:
-    branches: [deployment]  
-  pull_request:
-    branches: [deployment]
+  # push:
+  #   branches: [deployment]  
+  # pull_request:
+  #   branches: [deployment]
 
 jobs:
   Test-Envs:

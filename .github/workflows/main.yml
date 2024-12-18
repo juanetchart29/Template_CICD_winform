@@ -2,36 +2,37 @@ name: Build and Release WinForms Installer
 
 on:  
   workflow_dispatch:
-  # push:
-  #   branches: deployment  
-  # pull_request:
-  #   branches: deployment
-
+  push:
+    branches: [deployment]  
+  pull_request:
+    branches: [deployment]
+    
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  get-project-name:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Extract Project Name from JSON
-        run: |
-          PROJECT_NAME=$(jq -r '.project_name' .github/workflows/data.json)
-          echo "PROJECT_NAME=$PROJECT_NAME"
-          echo "PROJECT_NAME=$monitorVersion" >> $env:GITHUB_ENV
-
-
-  build:
+  Deploy-Installer:
     runs-on: windows-latest
     permissions: write-all    
     steps:
       # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Leer project_name desde data.json
+      - name: Read project_name from data.json
+        id: read_project_name
+        shell: pwsh
+        run: |
+          $json = Get-Content -Raw -Path './data.json' | ConvertFrom-Json
+          echo "Project Name: $($json.project_name)"
+          echo "PROJECT_NAME=$($json.project_name)" >> $env:GITHUB_ENV
+
+      # Establecer project_name como variable de entorno
+      - name: Set project_name env variable
+        run: echo "PROJECT_NAME=${{ steps.read_project_name.outputs.project_name }}" >> $GITHUB_ENV
 
       # Detect and set up the appropriate .NET SDK version
       - name: Setup .NET SDK
@@ -47,12 +48,11 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Release
 
-
       - name: Debug Environment Variables
         shell: pwsh
         run: |
           echo "PROJECT_NAME: ${{ env.PROJECT_NAME }}"
-  
+
       # Run NSIS script to create installer
       - name: makensis
         uses: joncloud/makensis-action@v4
