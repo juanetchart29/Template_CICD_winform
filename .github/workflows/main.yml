@@ -2,8 +2,8 @@ name: Build and Release WinForms Installer
 
 on:
   push:
-    branches:
-      - deployment
+    # branches:
+    #   - deployment
 
 jobs:
   build:
