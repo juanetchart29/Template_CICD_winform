@@ -19,4 +19,3 @@ jobs:
       - name: Modify env variable
         run: |
           echo "NAME=${{ env.NAME }}"
-/home/juan/repos/Template_CICD_winform/.github/workflows

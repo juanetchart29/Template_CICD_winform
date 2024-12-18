@@ -30,11 +30,6 @@ jobs:
           echo "Project Name: $($json.project_name)"
           echo "PROJECT_NAME=$($json.project_name)" >> $env:GITHUB_ENV
 
-      # Establecer project_name como variable de entorno
-      - name: Set project_name env variable
-        run: echo "PROJECT_NAME=${{ steps.read_project_name.outputs.project_name }}" >> $GITHUB_ENV
-
-      # Detect and set up the appropriate .NET SDK version
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
