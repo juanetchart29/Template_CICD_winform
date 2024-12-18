@@ -72,5 +72,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./installer/${{ env.PROJECT_NAME }}.exe
-          asset_name: your_installer.exe
+          asset_name: ${{ env.PROJECT_NAME }}.exe
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
