@@ -1,0 +1,21 @@
+name: Test Envs
+
+on:  
+  workflow_dispatch:
+  push:
+    branches: [deployment]  
+  pull_request:
+    branches: [deployment]
+
+jobs:
+  Test-Envs:
+    runs-on: windows-latest
+    permissions: write-all
+    steps:
+      - name: Add a new env variable  
+        run: |
+          echo "NAME=test" >> $GITHUB_ENV
+
+      - name: Modify env variable
+        run: |
+          echo "NAME=${{ env.NAME }}"
